@@ -1,31 +1,18 @@
 
-
 name: CI
-
-
-on:
-  
+on: 
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
-
-  
+    branches: [ "master" ] 
   workflow_dispatch:
 # env: 
 #   version: 4.7.0.2747-linux
-
-jobs:
-  
+jobs: 
   buildandpush:
-    
     runs-on: ubuntu-latest
-    
-    
-    steps:
-        
+    steps:   
       - uses: actions/checkout@v3
-
       - name: Setup Sonar-Scanner
         env: 
          version: 4.7.0.2747-linux
@@ -33,7 +20,6 @@ jobs:
          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$version.zip
          unzip sonar-scanner-cli-$version.zip -d $HOME/sonarqube
          chmod 755 $HOME/sonarqube/sonar-scanner-$version/bin/sonar-scanner
-
       - name: Scan the project
         env:
           sonarqube_project: ${{ secrets.SONARQUBE_PROJECT }}
@@ -46,14 +32,18 @@ jobs:
             -Dsonar.projectKey=$sonarqube_project \
             -Dsonar.sources=. \
             -Dsonar.host.url=$sonarqube_url \
-            -Dsonar.login=$api_key
-  
-      
+            -Dsonar.login=$api_key  
+      - name: Run Unit Tests
+        run: |
+         pwd
+         npm test || true
+      - name: Check the vulnaribilites of Depenencies
+        run: |
+         pwd
+         npm audit || true
       - name: BUild the container Image
         run: |
-           docker build coit-frontend -t chittiinfo/coit-frontend:latest -f coit-frontend/Dockerfile-multistage
-
-      
+           docker build coit-frontend -t chittiinfo/coit-frontend:latest -f coit-frontend/Dockerfile-multistage     
       - name: Docker Login
         env: 
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -63,3 +53,4 @@ jobs:
       - name: push the container Image    
         run: |
           docker push chittiinfo/coit-frontend:latest
+      
