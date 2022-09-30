@@ -12,14 +12,15 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+env: 
+  version: 4.7.0.2747-linux
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   buildandpush:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
+    
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
         # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -38,6 +39,7 @@ jobs:
           sonarqube_project: ${{ secrets.SONARQUBE_PROJECT }}
           api_key: ${{ secrets.SONARQUBE_API_KEY }}
           sonarqube_url: ${{ secrets.SONARQUBE_URL }}
+          version: 4.7.0.2747-linux
         run: |
           cd coit-frontend
           $HOME/sonarqube/sonar-scanner-$version/bin/sonar-scanner \
