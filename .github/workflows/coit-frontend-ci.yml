@@ -36,10 +36,12 @@ jobs:
       - name: Run Unit Tests
         run: |
          pwd
+         cd coit-frontend
          npm test || true
       - name: Check the vulnaribilites of Depenencies
         run: |
          pwd
+         cd coit-frontend
          npm audit || true
       - name: BUild the container Image
         run: |
