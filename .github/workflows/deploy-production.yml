@@ -1,0 +1,49 @@
+
+name: Deploy to production
+on: 
+  create:
+    tags: 
+     - 'v*'
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: cluster-1    # Add your cluster name here.
+  GKE_ZONE: us-central1-c   # Add your cluster zone here.
+ # DEPLOYMENT_NAME: gke-test # Add your deployment name here.
+ # IMAGE: static-site
+# env: 
+#   version: 4.7.0.2747-linux
+jobs: 
+  buildandpush:
+    runs-on: ubuntu-GITHUB_REF
+    steps: 
+      - uses: actions/checkout@v3
+      - name: Docker Login
+        env: 
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          docker login -u $username -p $password
+      - name: push the container Image    
+        run: |
+          docker push chittiinfo/coit-frontend:GITHUB_REF
+      # Setup gcloud CLI
+      - uses: google-github-actions/setup-gcloud@94337306dda8180d967a56932ceb4ddcf01edae7
+        with:
+          service_account_key: ${{ secrets.GKE_SA_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+      - uses: google-github-actions/get-gke-credentials@fb08709ba27618c31c09e014e1d8364b02e5042e
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}    
+          credentials: ${{ secrets.GKE_SA_KEY }}
+      # - name: Deploy The GKE cluster
+      #   run: |
+      #     cd resource-manifests/DeploymentAndServices-All
+      #     kubectl apply -f coit-frontend-deployment.yaml
+      #     kubectl apply -f service-coit-frontend-lb.yaml
+      - name: Deploy the GKE Cluster 
+        run: | 
+          cd kustomize/environments/preview
+          kubectl apply -k .
+
+# https://docs.github.com/en/actions/deployment/deploying-to-your-cloud-provider/deploying-to-google-kubernetes-engine
