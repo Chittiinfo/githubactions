@@ -9,3 +9,6 @@ replicas:
   count: 10
 
 namespace: production
+
+images: 
+- newTag: latest

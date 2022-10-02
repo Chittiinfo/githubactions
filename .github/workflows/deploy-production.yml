@@ -45,5 +45,8 @@ jobs:
         run: | 
           cd kustomize/environments/preview
           kubectl apply -k .
+      - name: Modify the kubernetes with latest release info
+        run: |
+          sed -i "s/latest/GITHUB_REF/g" kustomize\environments\production\kustomization.yaml
 
 # https://docs.github.com/en/actions/deployment/deploying-to-your-cloud-provider/deploying-to-google-kubernetes-engine
